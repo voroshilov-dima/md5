@@ -40,7 +40,7 @@ $(LIBFT):
 	make -C $(LIBFT_DIR)
 
 clean:
-	rm -rf $(OBJ)
+	rm -rf $(OBJ_DIR)
 	make clean -C $(LIBFT_DIR)
 
 fclean: clean
