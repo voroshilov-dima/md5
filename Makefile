@@ -2,7 +2,10 @@ NAME			 = ft_ssl
 
 CC 				 = gcc
 CCFLAGS			 = -Wall -Werror -Wextra -pthread
-SRC_FILES		 = main.c
+SRC_FILES		 =	main.c				\
+					md5_init.c			\
+					md5_support.c		\
+					md5_calculations.c
 
 SRC_DIR			 = srcs/
 OBJ_DIR			 = obj/
