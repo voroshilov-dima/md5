@@ -27,15 +27,44 @@
 # define S44 21
 
 typedef struct		s_md5 {
-	unsigned int	state[4];
-	unsigned int	x[16];
-	unsigned int	a;
-	unsigned int	b;
-	unsigned int	c;
-	unsigned int	d;
+	unsigned char	*text;
+	uint64_t		final_len;
+	uint32_t		state[4];
+	uint32_t		x[16];
+	uint32_t		a;
+	uint32_t		b;
+	uint32_t		c;
+	uint32_t		d;
+	int				quiet;
+	int				reverse;
 } 					t_md5;
 
+typedef struct		s_sha256 {
+	unsigned char	*text;
+	uint64_t		final_len;
+	uint32_t		state[8];
+	uint32_t		x[64];
+	uint32_t		a;
+	uint32_t		b;
+	uint32_t		c;
+	uint32_t		d;
+	uint32_t		e;
+	uint32_t		f;
+	uint32_t		g;
+	uint32_t		h;
+	int				quiet;
+	int				reverse;
+} 					t_sha256;
+
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+#define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((x) << (32-(n))))
+
+#define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
+#define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+#define EP0(x) (ROTATE_RIGHT(x,2) ^ ROTATE_RIGHT(x,13) ^ ROTATE_RIGHT(x,22))
+#define EP1(x) (ROTATE_RIGHT(x,6) ^ ROTATE_RIGHT(x,11) ^ ROTATE_RIGHT(x,25))
+#define SIG0(x) (ROTATE_RIGHT(x,7) ^ ROTATE_RIGHT(x,18) ^ ((x) >> 3))
+#define SIG1(x) (ROTATE_RIGHT(x,17) ^ ROTATE_RIGHT(x,19) ^ ((x) >> 10))
 
 #define FF(a, b, c, d, x, s, ac) {							\
 	(a) += F ((b), (c), (d)) + (x) + (unsigned int)(ac);	\
@@ -58,10 +87,13 @@ typedef struct		s_md5 {
 	(a) += (b); 											\
 }
 
-void	md5(int argc, char **argv);
-void	chars_to_words(unsigned int *output, unsigned char *input, unsigned int len);
-void	words_to_chars(unsigned char *output, unsigned int *input, unsigned int len);
-void	md_memset(unsigned char *output, int value, unsigned int len);
-void	transform(t_md5 *md, unsigned char block[64]);
+void		md5(int argc, char **argv);
+void		sha256(int argc, char **argv);
+void		chars_to_words(unsigned int *output, unsigned char *input, unsigned int len);
+void		words_to_chars(unsigned char *output, unsigned int *input, unsigned int len);
+void		md_memset(unsigned char *output, int value, unsigned int len);
+void		md5_transform(t_md5 *md, unsigned char block[64]);
+void		sha256_transform(t_sha256 *md, unsigned char block[64]);
+uint64_t	md_strlen(const char *s);
 
 #endif

@@ -10,7 +10,7 @@ int	main(int argc, char **argv)
 	else if (ft_strcmp(argv[1], "md5") == 0)
 		md5(argc, argv);
 	else if (ft_strcmp(argv[1], "sha256") == 0)
-		printf("sha256\n");
+		sha256(argc, argv);
 	else
 		printf("The program supports following algorithms: md5, sha256\n");
 	return (0);

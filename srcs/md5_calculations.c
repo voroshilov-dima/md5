@@ -80,7 +80,7 @@ void	round_4(t_md5 *md)
 	II (md->b, md->c, md->d, md->a, md->x[ 9], S44, 0xeb86d391);
 }
 
-void	transform(t_md5 *md, unsigned char block[64])
+void	md5_transform(t_md5 *md, unsigned char block[64])
 {
 	md->a = md->state[0];
 	md->b = md->state[1];
