@@ -3,6 +3,7 @@
 
 # include <stdio.h>
 # include "libft.h"
+# include <fcntl.h>
 
 # define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
 # define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
@@ -26,8 +27,18 @@
 # define S43 15
 # define S44 21
 
+# define BUFFER_SIZE 10
+
+typedef struct		s_read {
+	int		fd;
+	char	buffer[BUFFER_SIZE];
+	int		buffer_chars;
+	int		length;
+}					t_read;
+
 typedef struct		s_md5 {
 	unsigned char	*text;
+	uint64_t		message_len;
 	uint64_t		final_len;
 	uint32_t		state[4];
 	uint32_t		x[16];
@@ -41,6 +52,7 @@ typedef struct		s_md5 {
 
 typedef struct		s_sha256 {
 	unsigned char	*text;
+	uint64_t		message_len;
 	uint64_t		final_len;
 	uint32_t		state[8];
 	uint32_t		x[64];
