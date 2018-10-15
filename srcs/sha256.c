@@ -1,6 +1,6 @@
 #include "ft_ssl.h"
 
-static void init_context(t_sha256 *context)
+static void init_sha256(t_sha256 *context)
 {
 	context->state[0] = 0x6a09e667;
 	context->state[1] = 0xbb67ae85;
@@ -18,76 +18,81 @@ static void init_context(t_sha256 *context)
 	context->f = 0;
 	context->g = 0;
 	context->h = 0;
-	context->reverse = 0;
-	context->quiet = 0;
+
 }
 
-static void	append_padding(t_sha256 *context, char *str)
+static void	append_length(t_ssl *ssl)
 {
 	uint64_t	i;
-	uint64_t	message_len;
 	uint64_t	message_len_in_bits;
-
-	message_len = md_strlen(str);
-	if (message_len % 64 < 56)
-		context->final_len = (message_len / 64 + 1) * 64;
-	else
-		context->final_len = (message_len / 64 + 2) * 64;
-	context->text = (unsigned char *)malloc(sizeof(char) * context->final_len);
-	ft_memcpy(context->text, str, message_len);
-	context->text[message_len] = 128;
-	i = message_len + 1;
-	while (i < context->final_len - 8)
+	
+	message_len_in_bits = ssl->message_len * 8;
+	i = ssl->final_len - 8;
+	while (i < ssl->final_len)
 	{
-		context->text[i] = 0;
-		i++;
-	}
-	message_len_in_bits = message_len * 8;
-	while (i < context->final_len)
-	{
-		context->text[i] = (message_len_in_bits >> 8 * (context->final_len - i - 1)) & 0b11111111;
-		printf("%llu - %llu - %u\n", i, (context->final_len - i - 1) * 8, context->text[i]);
+		ssl->text[i] = (message_len_in_bits >> 8 * (ssl->final_len - i - 1)) & 0b11111111;
 		i++;
 	}
 }
 
-static void	process_string(t_sha256 *context, char *str)
+static void processing(t_ssl *ssl, char *str)
 {
-	int				i;
+	uint64_t		i;
+	unsigned char	digest[32];
 	unsigned char	buf[64];
 
-	append_padding(context, str);
-	ft_memcpy(buf, context->text, 64);
-	sha256_transform(context, buf);
-	
+	init_sha256(&ssl->sha256);
+	append_padding(ssl, str);
+	append_length(ssl);
 	i = 0;
-	while (i < 8)
-		printf("%.2x", context->state[i++]);
-	printf("\n");
-	printf("quiet: %d\n", context->quiet);
-	printf("reverse: %d\n", context->reverse);
-	str = 0;
+	while (i * 64 < ssl->final_len)
+	{
+		ft_memcpy(buf, ssl->text + i * 64, 64);
+		sha256_transform(&ssl->sha256, buf);
+		i++;
+	}
+	i = 0;
+	words_to_chars(digest, ssl->sha256.state, 32, 0);
+	print_results(ssl, digest, 32);
 }
 
-void	sha256(int argc, char **argv)
+static void	process_string(t_ssl *ssl, char **argv, int *i)
 {
-	t_sha256	context;
-	int	i;
+	char	*str;
 
-	init_context(&context);
+	if (argv[*i][2])
+		str = argv[*i] + 2;
+	else
+	{
+		*i += 1;
+		str = argv[*i];
+	}
+	if (str == 0)
+		usage("sha256");
+	ssl->message_len = ssl_strlen(str);
+	processing(ssl, str);
+}
+
+void		sha256(int argc, char **argv)
+{
+	t_ssl	ssl;
+	int		i;
+
+	init_ssl(&ssl);
 	i = 2;
 	while (i < argc)
 	{
 		if (ft_strcmp(argv[i], "-r") == 0)
-			context.reverse = 1;
+			ssl.flags.reverse = 1;
 		else if (ft_strcmp(argv[i], "-q") == 0)
-			context.quiet = 1;
+			ssl.flags.quiet = 1;
 		else if (argv[i][0] == '-' && argv[i][1] == 's')
-			process_string(&context, argv[i] + 2);
+			process_string(&ssl, argv, &i);
 		else if (argv[i][0] == '-')
-			printf("%s\n", "sha256: illegal option -- -\nusage: sha256 [-qr] [-s string] [files ...]");
+			usage("sha256");
 		else
-			printf("process file\n");
- 	    i++;
+			processing(&ssl, store_file(&ssl, argv[i]));
+		i++;
 	}
+	exit(0);
 }

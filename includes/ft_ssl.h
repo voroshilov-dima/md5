@@ -1,8 +1,8 @@
 #ifndef FT_SSL_H
 # define FT_SSL_H
 
-# include <stdio.h>
 # include "libft.h"
+# include <stdio.h>
 # include <fcntl.h>
 
 # define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
@@ -27,33 +27,32 @@
 # define S43 15
 # define S44 21
 
-# define BUFFER_SIZE 10
+# define BUFFER_SIZE 100
 
-typedef struct		s_read {
+typedef struct		s_read
+{
 	int		fd;
 	char	buffer[BUFFER_SIZE];
 	int		buffer_chars;
 	int		length;
 }					t_read;
 
+typedef struct 		s_flags
+{
+	int				quiet;
+	int				reverse;
+}					t_flags;
+
 typedef struct		s_md5 {
-	unsigned char	*text;
-	uint64_t		message_len;
-	uint64_t		final_len;
 	uint32_t		state[4];
 	uint32_t		x[16];
 	uint32_t		a;
 	uint32_t		b;
 	uint32_t		c;
 	uint32_t		d;
-	int				quiet;
-	int				reverse;
 } 					t_md5;
 
 typedef struct		s_sha256 {
-	unsigned char	*text;
-	uint64_t		message_len;
-	uint64_t		final_len;
 	uint32_t		state[8];
 	uint32_t		x[64];
 	uint32_t		a;
@@ -64,9 +63,17 @@ typedef struct		s_sha256 {
 	uint32_t		f;
 	uint32_t		g;
 	uint32_t		h;
-	int				quiet;
-	int				reverse;
 } 					t_sha256;
+
+typedef struct		s_ssl
+{
+	unsigned char	*text;
+	uint64_t		message_len;
+	uint64_t		final_len;
+	t_flags			flags;
+	t_sha256		sha256;
+	t_md5			md5;
+}					t_ssl;
 
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 #define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((x) << (32-(n))))
@@ -101,11 +108,16 @@ typedef struct		s_sha256 {
 
 void		md5(int argc, char **argv);
 void		sha256(int argc, char **argv);
+void		init_ssl(t_ssl *ssl);
+void		usage(char *str);
+void		append_padding(t_ssl *ssl, char *str);
+char		*store_file(t_ssl *ssl, char *file_name);
+void		print_results(t_ssl *ssl, unsigned char *str, int len);
 void		chars_to_words(unsigned int *output, unsigned char *input, unsigned int len);
-void		words_to_chars(unsigned char *output, unsigned int *input, unsigned int len);
-void		md_memset(unsigned char *output, int value, unsigned int len);
-void		md5_transform(t_md5 *md, unsigned char block[64]);
-void		sha256_transform(t_sha256 *md, unsigned char block[64]);
-uint64_t	md_strlen(const char *s);
+void		words_to_chars(unsigned char *output, unsigned int *input, unsigned int len, int inverse);
+void		ssl_memset(unsigned char *output, int value, unsigned int len);
+void		md5_transform(t_md5 *md5, unsigned char block[64]);
+void		sha256_transform(t_sha256 *sha256, unsigned char block[64]);
+uint64_t	ssl_strlen(const char *s);
 
 #endif
