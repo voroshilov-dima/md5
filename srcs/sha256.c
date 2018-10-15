@@ -26,7 +26,7 @@ static void	append_padding(t_sha256 *context, char *str)
 {
 	uint64_t	i;
 	uint64_t	message_len;
-	// uint64_t	message_len_in_bits;
+	uint64_t	message_len_in_bits;
 
 	message_len = md_strlen(str);
 	if (message_len % 64 < 56)
@@ -42,20 +42,13 @@ static void	append_padding(t_sha256 *context, char *str)
 		context->text[i] = 0;
 		i++;
 	}
-	context->text[63] = 24;
-	context->text[62] = 0;
-	context->text[61] = 0;
-	context->text[60] = 0;
-	context->text[59] = 0;
-	context->text[58] = 0;
-	context->text[57] = 0;
-	context->text[56] = 0;
-	// message_len_in_bits = message_len * 8;
-	// while (i < context->final_len)
-	// {
-	// 	context->text[i] = (message_len_in_bits >> 8 * (context->final_len - i)) & 0b11111111;
-	// 	i++;
-	// }
+	message_len_in_bits = message_len * 8;
+	while (i < context->final_len)
+	{
+		context->text[i] = (message_len_in_bits >> 8 * (context->final_len - i - 1)) & 0b11111111;
+		printf("%llu - %llu - %u\n", i, (context->final_len - i - 1) * 8, context->text[i]);
+		i++;
+	}
 }
 
 static void	process_string(t_sha256 *context, char *str)
@@ -66,23 +59,10 @@ static void	process_string(t_sha256 *context, char *str)
 	append_padding(context, str);
 	ft_memcpy(buf, context->text, 64);
 	sha256_transform(context, buf);
-	// words_to_chars(buf, context->state, 32);
+	
 	i = 0;
-	while (i < 4)
-	{
-		buf[i]      = (context->state[0] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 4]  = (context->state[1] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 8]  = (context->state[2] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 12] = (context->state[3] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 16] = (context->state[4] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 20] = (context->state[5] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 24] = (context->state[6] >> (24 - i * 8)) & 0x000000ff;
-		buf[i + 28] = (context->state[7] >> (24 - i * 8)) & 0x000000ff;
-		i++;
-	}
-	i = 0;
-	while (i < 32)
-		printf("%.2x", buf[i++]);
+	while (i < 8)
+		printf("%.2x", context->state[i++]);
 	printf("\n");
 	printf("quiet: %d\n", context->quiet);
 	printf("reverse: %d\n", context->reverse);

@@ -26,7 +26,7 @@ void	words_to_chars(unsigned char *output, unsigned int *input, unsigned int len
 
 	i = 0;
 	j = 0;
-	while( j < len)
+	while (j < len)
 	{
 		output[j] = (unsigned char)(input[i] & 0xff);
 		output[j + 1] = (unsigned char)((input[i] >> 8) & 0xff);
