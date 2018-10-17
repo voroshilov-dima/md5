@@ -46,23 +46,6 @@ static void processing(t_ssl *ssl, char *str)
 	print_results(ssl, digest, 16);
 }
 
-static void	process_string(t_ssl *ssl, char **argv, int *i)
-{
-	char	*str;
-
-	if (argv[*i][2])
-		str = argv[*i] + 2;
-	else
-	{
-		*i += 1;
-		str = argv[*i];
-	}
-	if (str == 0)
-		usage("md5");
-	ssl->message_len = ssl_strlen(str);
-	processing(ssl, str);
-}
-
 void		md5(int argc, char **argv)
 {
 	t_ssl	ssl;
@@ -76,12 +59,14 @@ void		md5(int argc, char **argv)
 			ssl.flags.reverse = 1;
 		else if (ft_strcmp(argv[i], "-q") == 0)
 			ssl.flags.quiet = 1;
+		else if (ft_strcmp(argv[i], "-p") == 0)
+			processing(&ssl, process_file(&ssl, NULL));
 		else if (argv[i][0] == '-' && argv[i][1] == 's')
-			process_string(&ssl, argv, &i);
+			processing(&ssl, process_string(&ssl, argv, &i));
 		else if (argv[i][0] == '-')
-			usage("sha256");
+			usage(&ssl);
 		else
-			processing(&ssl, store_file(&ssl, argv[i]));
+			processing(&ssl, process_file(&ssl, argv[i]));
 		i++;
 	}
 	exit(0);

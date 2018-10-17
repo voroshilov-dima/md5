@@ -47,13 +47,11 @@ void	sha256_transform(t_sha256 *sha, unsigned char block[64])
 		i++;
 		j += 4;
 	}
-
 	while (i < 64)
 	{
 		sha->x[i] = SIG1(sha->x[i - 2]) + sha->x[i - 7] + SIG0(sha->x[i - 15]) + sha->x[i - 16];
 		i++;
 	}
-
 	sha->a = sha->state[0];
 	sha->b = sha->state[1];
 	sha->c = sha->state[2]; 
@@ -62,9 +60,7 @@ void	sha256_transform(t_sha256 *sha, unsigned char block[64])
 	sha->f = sha->state[5];
 	sha->g = sha->state[6];
 	sha->h = sha->state[7];
-
 	transformation_routine(sha);
-
 	sha->state[0] += sha->a;
 	sha->state[1] += sha->b;
 	sha->state[2] += sha->c;

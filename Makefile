@@ -29,7 +29,7 @@ FT_SSL_HEADER = ft_ssl.h
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
-	$(CC) -o $(NAME) $(OBJ) $(LIBFT_DIR)*.o
+	$(CC) -o $(NAME) $(OBJ) $(FLAGS)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INC)$(FT_SSL_HEADER)
 	$(CC) $(CCFLAGS) -I $(INC) -I $(LIBFT_DIR) -c $< -o $@ 

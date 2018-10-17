@@ -10,6 +10,12 @@
 # define H(x, y, z) ((x) ^ (y) ^ (z))
 # define I(x, y, z) ((y) ^ ((x) | (~z)))
 
+# define FILE 1
+# define STRING 0
+
+# define MD5 0
+# define SHA256 1
+
 # define S11 7
 # define S12 12
 # define S13 17
@@ -73,6 +79,9 @@ typedef struct		s_ssl
 	t_flags			flags;
 	t_sha256		sha256;
 	t_md5			md5;
+	int				input_type;
+	char			*input_name;
+	int				algorithm;
 }					t_ssl;
 
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
@@ -109,9 +118,10 @@ typedef struct		s_ssl
 void		md5(int argc, char **argv);
 void		sha256(int argc, char **argv);
 void		init_ssl(t_ssl *ssl);
-void		usage(char *str);
+void		usage(t_ssl *ssl);
 void		append_padding(t_ssl *ssl, char *str);
-char		*store_file(t_ssl *ssl, char *file_name);
+char		*process_file(t_ssl *ssl, char *file_name);
+char		*process_string(t_ssl *ssl, char **argv, int *i);
 void		print_results(t_ssl *ssl, unsigned char *str, int len);
 void		chars_to_words(unsigned int *output, unsigned char *input, unsigned int len);
 void		words_to_chars(unsigned char *output, unsigned int *input, unsigned int len, int inverse);

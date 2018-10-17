@@ -19,12 +19,12 @@ void		append_padding(t_ssl *ssl, char *str)
 	}
 }
 
-void 	usage(char *str)
+void 	usage(t_ssl *ssl)
 {
-	if (ft_strcmp(str, "md5"))
-		printf("%s\n", "md5: illegal option -- -\nusage: md5 [-qr] [-s string] [files ...]");
-	else if (ft_strcmp(str, "sha256"))
-		printf("%s\n", "sha256: illegal option -- -\nusage: md256 [-qr] [-s string] [files ...]");
+	if (ssl->algorithm == MD5)
+		ft_printf("%s\n", "md5: illegal option -- -\nusage: md5 [-qr] [-s string] [files ...]");
+	else if (ssl->algorithm == SHA256)
+		ft_printf("%s\n", "sha256: illegal option -- -\nusage: sha256 [-qr] [-s string] [files ...]");
 	exit(1);
 }
 
@@ -33,23 +33,52 @@ void	print_results(t_ssl *ssl, unsigned char *str, int len)
 	int	i;
 
 	i = 0;
+	if (ssl->flags.quiet == 0 && ssl->flags.reverse == 0 && ssl->input_type == FILE)
+		ft_printf("MD5 (%s) = ", ssl->input_name);
+	else if (ssl->flags.quiet == 0 && ssl->flags.reverse == 0 && ssl->input_type == STRING)
+		ft_printf("MD5 (\"%s\") = ", ssl->input_name);
 	while (i < len)
-		printf("%.2x", str[i++]);
-	printf("\n");
-	printf("quiet: %d\n", ssl->flags.quiet);
-	printf("reverse: %d\n", ssl->flags.reverse);
+		ft_printf("%.2x", str[i++]);
+	if (ssl->flags.quiet == 0 && ssl->flags.reverse == 1 && ssl->input_type == FILE)
+		ft_printf(" %s", ssl->input_name);
+	else if (ssl->flags.quiet == 0 && ssl->flags.reverse == 1 && ssl->input_type == STRING)
+		ft_printf(" \"%s\"", ssl->input_name);
+
+	ft_printf("\n");
+	ssl = 0;
 }
 
-char		*store_file(t_ssl *ssl, char *file_name)
+char	*process_string(t_ssl *ssl, char **argv, int *i)
+{
+	char	*str;
+
+	if (argv[*i][2])
+		str = argv[*i] + 2;
+	else
+	{
+		*i += 1;
+		str = argv[*i];
+	}
+	if (str == 0)
+		usage(ssl);
+	ssl->message_len = ssl_strlen(str);
+	ssl->input_type = STRING;
+	ssl->input_name = str;
+	return (str);
+}
+
+char	*process_file(t_ssl *ssl, char *file_name)
 {
 	t_read	rd;
 	char	*file_content;
 	char	*temp;
 	int		i;
 
-	if ((rd.fd = open(file_name, O_RDONLY, 0)) < 0)
+	if (file_name == NULL)
+		rd.fd = 0;
+	else if ((rd.fd = open(file_name, O_RDONLY, 0)) < 0)
 	{
-		printf("Failed to open file\n");
+		ft_printf("Failed to open file\n");
 		exit(1);
 	}
 	rd.length = 0;
@@ -89,5 +118,7 @@ char		*store_file(t_ssl *ssl, char *file_name)
 	}
 	close(rd.fd);
 	ssl->message_len = rd.length;
+	ssl->input_type = FILE;
+	ssl->input_name = file_name;
 	return (file_content);
 }

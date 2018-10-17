@@ -73,12 +73,21 @@ SRC = ft_memset.c			\
 	  ft_strswap.c			\
 	  ft_list_find.c		\
 	  ft_list_foreach_if.c	\
-	  ft_list_reverse.c
+	  ft_list_reverse.c		\
+	  ft_printf/main.c		\
+	  ft_printf/parse_format.c		\
+	  ft_printf/print_non_numbers.c		\
+	  ft_printf/print_signed_numbers.c		\
+	  ft_printf/print_unicode.c		\
+	  ft_printf/print_unsigned_numbers.c		\
+	  ft_printf/support_functions1.c		\
+	  ft_printf/support_functions2.c		\
+	  ft_printf/support_functions3.c		\
+
 
 
 OBJ = $(SRC:.c=.o)
 FLAGS = -Wall -Werror -Wextra
-
 
 all: $(NAME) 
 
