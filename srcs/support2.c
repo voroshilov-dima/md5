@@ -21,10 +21,7 @@ void		append_padding(t_ssl *ssl, char *str)
 
 void 	usage(t_ssl *ssl)
 {
-	if (ssl->algorithm == MD5)
-		ft_printf("%s\n", "md5: illegal option -- -\nusage: md5 [-qr] [-s string] [files ...]");
-	else if (ssl->algorithm == SHA256)
-		ft_printf("%s\n", "sha256: illegal option -- -\nusage: sha256 [-qr] [-s string] [files ...]");
+	ft_printf("%s: illegal option -- -\nusage: %s [-qr] [-s string] [files ...]\n", ssl->name, ssl->name);
 	exit(1);
 }
 
@@ -34,16 +31,16 @@ void	print_results(t_ssl *ssl, unsigned char *str, int len)
 
 	i = 0;
 	if (ssl->flags.quiet == 0 && ssl->flags.reverse == 0 && ssl->input_type == FILE)
-		ft_printf("MD5 (%s) = ", ssl->input_name);
+		ft_printf("%s (%s) = ", ssl->name, ssl->input_name);
 	else if (ssl->flags.quiet == 0 && ssl->flags.reverse == 0 && ssl->input_type == STRING)
-		ft_printf("MD5 (\"%s\") = ", ssl->input_name);
+		ft_printf("%s (\"%s\") = ", ssl->name, ssl->input_name);
 	while (i < len)
 		ft_printf("%.2x", str[i++]);
 	if (ssl->flags.quiet == 0 && ssl->flags.reverse == 1 && ssl->input_type == FILE)
 		ft_printf(" %s", ssl->input_name);
 	else if (ssl->flags.quiet == 0 && ssl->flags.reverse == 1 && ssl->input_type == STRING)
 		ft_printf(" \"%s\"", ssl->input_name);
-
+	free(ssl->text);
 	ft_printf("\n");
 	ssl = 0;
 }
@@ -73,7 +70,9 @@ char	*process_file(t_ssl *ssl, char *file_name)
 	char	*file_content;
 	char	*temp;
 	int		i;
+	int		start;
 
+	start = 1;
 	if (file_name == NULL)
 		rd.fd = 0;
 	else if ((rd.fd = open(file_name, O_RDONLY, 0)) < 0)
@@ -84,8 +83,21 @@ char	*process_file(t_ssl *ssl, char *file_name)
 	rd.length = 0;
 	while ((rd.buffer_chars = read(rd.fd, rd.buffer, BUFFER_SIZE)))
 	{
-		if (file_content)
+		if (start)
 		{
+			start = 0;
+			file_content = (char *)malloc(sizeof(char) * (rd.buffer_chars + 1));
+			i = 0;
+			while (i < rd.buffer_chars)
+			{
+				file_content[i] = rd.buffer[i];
+				i++;
+			}
+			rd.length = rd.buffer_chars;
+		}
+		else
+		{
+			
 			temp = (char *)malloc(sizeof(char) * (rd.length + rd.buffer_chars + 1));
 			i = 0;
 			while (i < rd.length)
@@ -103,17 +115,6 @@ char	*process_file(t_ssl *ssl, char *file_name)
 			free(file_content);
 			file_content = temp;
 			rd.length += rd.buffer_chars;
-		}
-		else
-		{
-			file_content = (char *)malloc(sizeof(char) * (rd.buffer_chars + 1));
-			i = 0;
-			while (i < rd.buffer_chars)
-			{
-				file_content[i] = rd.buffer[i];
-				i++;
-			}
-			rd.length = rd.buffer_chars;
 		}
 	}
 	close(rd.fd);

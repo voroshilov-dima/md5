@@ -71,8 +71,15 @@ typedef struct		s_sha256 {
 	uint32_t		h;
 } 					t_sha256;
 
+typedef struct		s_algorithm
+{
+	char			*name;
+	void			(*func)(int, char **);
+}					t_algorithm;
+
 typedef struct		s_ssl
 {
+	char			*name;
 	unsigned char	*text;
 	uint64_t		message_len;
 	uint64_t		final_len;

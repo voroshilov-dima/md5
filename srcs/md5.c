@@ -1,15 +1,16 @@
 #include "ft_ssl.h"
 
-static void init_md5(t_md5 *md5)
+static void init_md5(t_ssl *ssl)
 {
-	md5->state[0] = 0x67452301;
-	md5->state[1] = 0xefcdab89;
-	md5->state[2] = 0x98badcfe;
-	md5->state[3] = 0x10325476;
-	md5->a = 0;
-	md5->b = 0;
-	md5->c = 0;
-	md5->d = 0;
+	ssl->name = "md5";
+	ssl->md5.state[0] = 0x67452301;
+	ssl->md5.state[1] = 0xefcdab89;
+	ssl->md5.state[2] = 0x98badcfe;
+	ssl->md5.state[3] = 0x10325476;
+	ssl->md5.a = 0;
+	ssl->md5.b = 0;
+	ssl->md5.c = 0;
+	ssl->md5.d = 0;
 }
 
 static void	append_length(t_ssl *ssl)
@@ -32,10 +33,9 @@ static void processing(t_ssl *ssl, char *str)
 	unsigned char	digest[16];
 	unsigned char	buf[64];
 
-	init_md5(&ssl->md5);
 	append_padding(ssl, str);
 	append_length(ssl);
-	i = 0;
+	i = 0;	
 	while (i * 64 < ssl->final_len)
 	{
 		ft_memcpy(buf, ssl->text + i * 64, 64);
@@ -52,6 +52,7 @@ void		md5(int argc, char **argv)
 	int		i;
 
 	init_ssl(&ssl);
+	init_md5(&ssl);
 	i = 2;
 	while (i < argc)
 	{

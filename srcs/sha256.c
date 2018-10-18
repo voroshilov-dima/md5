@@ -1,23 +1,24 @@
 #include "ft_ssl.h"
 
-static void init_sha256(t_sha256 *context)
+static void init_sha256(t_ssl *ssl)
 {
-	context->state[0] = 0x6a09e667;
-	context->state[1] = 0xbb67ae85;
-	context->state[2] = 0x3c6ef372;
-	context->state[3] = 0xa54ff53a;
-	context->state[4] = 0x510e527f;
-	context->state[5] = 0x9b05688c;
-	context->state[6] = 0x1f83d9ab;
-	context->state[7] = 0x5be0cd19;
-	context->a = 0;
-	context->b = 0;
-	context->c = 0;
-	context->d = 0;
-	context->e = 0;
-	context->f = 0;
-	context->g = 0;
-	context->h = 0;
+	ssl->name = "sha256";
+	ssl->sha256.state[0] = 0x6a09e667;
+	ssl->sha256.state[1] = 0xbb67ae85;
+	ssl->sha256.state[2] = 0x3c6ef372;
+	ssl->sha256.state[3] = 0xa54ff53a;
+	ssl->sha256.state[4] = 0x510e527f;
+	ssl->sha256.state[5] = 0x9b05688c;
+	ssl->sha256.state[6] = 0x1f83d9ab;
+	ssl->sha256.state[7] = 0x5be0cd19;
+	ssl->sha256.a = 0;
+	ssl->sha256.b = 0;
+	ssl->sha256.c = 0;
+	ssl->sha256.d = 0;
+	ssl->sha256.e = 0;
+	ssl->sha256.f = 0;
+	ssl->sha256.g = 0;
+	ssl->sha256.h = 0;
 }
 
 static void	append_length(t_ssl *ssl)
@@ -40,7 +41,7 @@ static void processing(t_ssl *ssl, char *str)
 	unsigned char	digest[32];
 	unsigned char	buf[64];
 
-	init_sha256(&ssl->sha256);
+	init_sha256(ssl);
 	append_padding(ssl, str);
 	append_length(ssl);
 	i = 0;
@@ -61,6 +62,7 @@ void		sha256(int argc, char **argv)
 	int		i;
 
 	init_ssl(&ssl);
+	init_sha256(&ssl);
 	i = 2;
 	while (i < argc)
 	{
